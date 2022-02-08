@@ -55,12 +55,15 @@ def make_utm(utm_info: schemas.utm_info, _: str = Depends(get_current_username))
             url = main_url
         else:
             utm_content = f'utm_content={content_settings}'
-        link = url + '?' + '&'.join([utm_source, utm_medium, utm_campaign, utm_content, term]),
+        link = url + '?' + '&'.join([utm_source, utm_medium, utm_campaign, utm_content, term])
+        short_link = get_bitly(link)
+        logger.debug(link)
+        logger.debug(short_link)
         result.utms.append(
             schemas.utm(
                 desc=content_settings,
                 link=link,
-                short_link=get_bitly(link)
+                short_link=short_link
             )
         )
     return result
