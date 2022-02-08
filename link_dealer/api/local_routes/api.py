@@ -53,7 +53,7 @@ def make_utm(utm_info: schemas.utm_info, _: str = Depends(get_current_username))
         result.utms.append(
             schemas.utm(
                 desc=content_settings,
-                link=url + '&'.join([utm_source, utm_medium, utm_campaign, utm_content, term])
+                link=url + '?' + '&'.join([utm_source, utm_medium, utm_campaign, utm_content, term])
             )
         )
     return result
