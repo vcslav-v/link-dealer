@@ -57,6 +57,9 @@ def make_utm(utm_info: schemas.utm_info, _: str = Depends(get_current_username))
             utm_content = f'utm_content={content_settings}'
         link = url + '?' + '&'.join([utm_source, utm_medium, utm_campaign, utm_content, term])
         short_link = get_bitly(link)
+        if short_link == 'bit.ly failed':
+            sleep(2)
+            short_link = get_bitly(link)
         logger.debug(link)
         logger.debug(short_link)
         result.utms.append(
@@ -81,7 +84,6 @@ def get_bitly(long_url):
     })
     url = 'https://api-ssl.bitly.com/v4/shorten'
     req = requests.post(url, headers=headers, data=payload)
-    sleep(1)
     if req.status_code == 200:
         req_json = json.loads(req.text)
         return req_json['link']
