@@ -26,6 +26,7 @@ class utm_info(BaseModel):
 class utm(BaseModel):
     desc: str
     link: str
+    short_link: str
 
 
 class utms(BaseModel):

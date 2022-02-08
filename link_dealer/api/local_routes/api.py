@@ -1,8 +1,12 @@
+import imp
+from multiprocessing.spawn import import_main_path
 import os
 import secrets
 from datetime import datetime
 from urllib.parse import urlparse
 import json
+from time import sleep
+import requests
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -17,6 +21,7 @@ password = os.environ.get('API_PASSWORD', 'pass')
 subscription_url = os.environ.get('SUB_URL', 'subscription_url')
 main_url = os.environ.get('MAIN_URL', 'main_url')
 utm_cattegories = json.loads(os.environ.get('UTM_CATS', '{}'))
+TOKEN_BITLY = os.environ.get('TOKEN_BITLY', '')
 
 
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
@@ -50,10 +55,32 @@ def make_utm(utm_info: schemas.utm_info, _: str = Depends(get_current_username))
             url = main_url
         else:
             utm_content = f'utm_content={content_settings}'
+        link = url + '?' + '&'.join([utm_source, utm_medium, utm_campaign, utm_content, term]),
         result.utms.append(
             schemas.utm(
                 desc=content_settings,
-                link=url + '?' + '&'.join([utm_source, utm_medium, utm_campaign, utm_content, term])
+                link=link,
+                short_link=get_bitly(link)
             )
         )
     return result
+
+
+def get_bitly(long_url):
+    headers = {
+        'Authorization': TOKEN_BITLY,
+        'Content-Type': 'application/json'
+    }
+    payload = json.dumps({
+        'long_url': long_url,
+        'domain': 'bit.ly',
+        'group_guid': ''
+    })
+    url = 'https://api-ssl.bitly.com/v4/shorten'
+    req = requests.post(url, headers=headers, data=payload)
+    sleep(1)
+    if req.status_code == 200:
+        req_json = json.loads(req.text)
+        return req_json['link']
+    else:
+        return 'bit.ly failed'
