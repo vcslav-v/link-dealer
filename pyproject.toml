@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "link_dealer"
+version = "0.1.0"
+description = ""
+authors = ["vaclav-v"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+loguru = "^0.6.0"
+fastapi = "^0.73.0"
+gunicorn = "^20.1.0"
+uvicorn = "^0.17.4"
+python-multipart = "^0.0.5"
+pydantic = "^1.9.0"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^4.0.1"
+mypy = "^0.931"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
