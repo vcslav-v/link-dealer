@@ -39,7 +39,7 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
 def make_utm(utm_info: schemas.utm_info, _: str = Depends(get_current_username)) -> schemas.utms:
     logger.debug(utm_info)
     category = urlparse(utm_info.link)[2].split('/')[-2].replace('-', '')
-    term = f'{utm_info.item_type}-item-{category}'
+    term = f'utm_term={utm_info.item_type}-item-{category}'
     dt = datetime.utcnow().date()
     result = schemas.utms()
     utm_source = f'utm_source={utm_cattegories[utm_info.source]["source"]}'
@@ -51,6 +51,9 @@ def make_utm(utm_info: schemas.utm_info, _: str = Depends(get_current_username))
         utm_content = 'utm_content=text'
         if content_settings == 'to_subscription':
             url = subscription_url
+        elif content_settings == 'to_subscription_button':
+            url = subscription_url
+            utm_content = 'utm_content=button'
         elif content_settings == 'to_main':
             url = main_url
         else:
