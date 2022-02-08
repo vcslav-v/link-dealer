@@ -4,6 +4,7 @@ import secrets
 from datetime import datetime
 from time import sleep
 from urllib.parse import urlparse
+from loguru import logger
 
 import requests
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -33,8 +34,10 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     return credentials.username
 
 
+@logger.catch
 @router.post('/make-utm')
 def make_utm(utm_info: schemas.utm_info, _: str = Depends(get_current_username)) -> schemas.utms:
+    logger.debug(utm_info)
     category = urlparse(utm_info.link)[2].split('/')[-2].replace('-', '')
     term = f'{utm_info.item_type}-item-{category}'
     dt = datetime.utcnow().date()
