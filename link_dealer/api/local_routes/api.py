@@ -1,16 +1,13 @@
-import imp
-from multiprocessing.spawn import import_main_path
+import json
 import os
 import secrets
 from datetime import datetime
-from urllib.parse import urlparse
-import json
 from time import sleep
-import requests
+from urllib.parse import urlparse
 
+import requests
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-
 from link_dealer import schemas
 
 router = APIRouter()
