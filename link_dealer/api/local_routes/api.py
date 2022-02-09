@@ -2,11 +2,9 @@ import json
 import os
 import secrets
 from datetime import datetime
-from time import sleep
 from urllib.parse import urlparse
 from loguru import logger
 
-import requests
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from link_dealer import schemas
@@ -59,36 +57,11 @@ def make_utm(utm_info: schemas.utm_info, _: str = Depends(get_current_username))
         else:
             utm_content = f'utm_content={content_settings}'
         link = url + '?' + '&'.join([utm_source, utm_medium, utm_campaign, utm_content, term])
-        short_link = get_bitly(link)
-        if short_link == 'bit.ly failed':
-            sleep(2)
-            short_link = get_bitly(link)
-        logger.debug(link)
-        logger.debug(short_link)
         result.utms.append(
             schemas.utm(
                 desc=content_settings,
                 link=link,
-                short_link=short_link
+                short_link=''
             )
         )
     return result
-
-
-def get_bitly(long_url):
-    headers = {
-        'Authorization': TOKEN_BITLY,
-        'Content-Type': 'application/json'
-    }
-    payload = json.dumps({
-        'long_url': long_url,
-        'domain': 'bit.ly',
-        'group_guid': ''
-    })
-    url = 'https://api-ssl.bitly.com/v4/shorten'
-    req = requests.post(url, headers=headers, data=payload)
-    if req.status_code == 200:
-        req_json = json.loads(req.text)
-        return req_json['link']
-    else:
-        return 'bit.ly failed'
