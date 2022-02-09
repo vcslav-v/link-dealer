@@ -14,7 +14,7 @@ from link_dealer import schemas
 router = APIRouter()
 security = HTTPBasic()
 
-username = os.environ.get('API_USERNAME', 'root')
+username = os.environ.get('API_USERNAME', 'api')
 password = os.environ.get('API_PASSWORD', 'pass')
 subscription_url = os.environ.get('SUB_URL', 'subscription_url')
 main_url = os.environ.get('MAIN_URL', 'main_url')
