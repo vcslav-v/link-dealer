@@ -7,12 +7,12 @@ def get_info() -> schemas.Info:
     '''Get info.'''
 
     with db.SessionLocal() as session:
-        users = session.query(models.User).all()
-        term_materials = session.query(models.TermMaterial).all()
-        term_pages = session.query(models.TermPage).all()
-        mediums = session.query(models.Medium).all()
-        campaign_projects = session.query(models.CampaignProject).all()
-        contents = session.query(models.Content).all()
+        users = session.query(models.User).order_by(models.User.weight).all()
+        term_materials = session.query(models.TermMaterial).order_by(models.TermMaterial.weight.desc()).all()
+        term_pages = session.query(models.TermPage).order_by(models.TermPage.weight.desc()).all()
+        mediums = session.query(models.Medium).order_by(models.Medium.weight.desc()).all()
+        campaign_projects = session.query(models.CampaignProject).order_by(models.CampaignProject.weight.desc()).all()
+        contents = session.query(models.Content).order_by(models.Content.weight.desc()).all()
         last_links = session.query(models.Link).order_by(models.Link.campaign_date.desc()).limit(10).all()
 
         return schemas.Info(
@@ -47,7 +47,7 @@ def get_info() -> schemas.Info:
                             ident=source.id,
                             value=source.name,
                         )
-                        for source in medium.sources
+                        for source in sorted(medium.sources, key=lambda x: x.weight, reverse=True)
                     ],
                 )
                 for medium in mediums
