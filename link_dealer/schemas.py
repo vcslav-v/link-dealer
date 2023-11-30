@@ -73,4 +73,4 @@ class LinkCreate(BaseModel):
 class LastLinks(BaseModel):
     '''LastLinks.'''
 
-    links: list[Link]
+    links: list[Link] = []
