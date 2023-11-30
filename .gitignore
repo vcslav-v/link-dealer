@@ -4,3 +4,4 @@
 __pycache__
 .python-version
 setup.cfg
+link_dealer/data.json

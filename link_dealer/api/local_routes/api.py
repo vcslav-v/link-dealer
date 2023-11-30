@@ -7,7 +7,8 @@ from loguru import logger
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from link_dealer import schemas
+from link_dealer import schemas, db_tools
+
 
 router = APIRouter()
 security = HTTPBasic()
@@ -33,35 +34,20 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 @logger.catch
-@router.post('/make-utm')
-def make_utm(utm_info: schemas.utm_info, _: str = Depends(get_current_username)) -> schemas.utms:
-    logger.debug(utm_info)
-    category = urlparse(utm_info.link)[2].split('/')[-2].replace('-', '')
-    term = f'utm_term={utm_info.item_type}-item-{category}'
-    dt = datetime.utcnow().date()
-    result = schemas.utms()
-    utm_source = f'utm_source={utm_cattegories[utm_info.source]["source"]}'
-    utm_medium = f'utm_medium={utm_cattegories[utm_info.source]["medium"]}'
-    utm_campaign = f'utm_campaign={utm_info.project}-{dt.strftime("%Y%m%d")}'
+@router.get('/info', response_model=schemas.Info, tags=['api'])
+def info(_: str = Depends(get_current_username)) -> schemas.Info:
+    return db_tools.get_info()
 
-    for content_settings in utm_cattegories[utm_info.source]['content']:
-        url = utm_info.link
-        utm_content = 'utm_content=text'
-        if content_settings == 'to_subscription':
-            url = subscription_url
-        elif content_settings == 'to_subscription_button':
-            url = subscription_url
-            utm_content = 'utm_content=button'
-        elif content_settings == 'to_main':
-            url = main_url
-        else:
-            utm_content = f'utm_content={content_settings}'
-        link = url + '?' + '&'.join([utm_source, utm_medium, utm_campaign, utm_content, term])
-        result.utms.append(
-            schemas.utm(
-                desc=content_settings,
-                link=link,
-                short_link=''
-            )
-        )
-    return result
+
+@logger.catch
+@router.post('/update_info', response_model=schemas.Info, tags=['api'])
+def update_info(data: schemas.Info, _: str = Depends(get_current_username)) -> schemas.Info:
+    db_tools.update_info(data)
+    return db_tools.get_info()
+
+
+@logger.catch
+@router.post('/create_link', response_model=schemas.Link, tags=['api'])
+def create_link(data: schemas.LinkCreate, _: str = Depends(get_current_username)) -> schemas.Link:
+    link = db_tools.create_link(data)
+    return link

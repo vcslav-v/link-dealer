@@ -3,6 +3,8 @@ APP_AUTHOR = vaclav-v
 
 FILE_VSCODE_SETTINGS = .vscode/settings.json
 FILE_LINT_SETTINGS = setup.cfg
+FILE_GITIGNORE = .gitignore
+  
 
 define VSCODE_SETTINGS
 echo "{" >> $(FILE_VSCODE_SETTINGS)
@@ -16,8 +18,6 @@ echo "}" >> $(FILE_VSCODE_SETTINGS)
 endef
 
 
-FILE_GITIGNORE = .gitignore
-
 define GITIGNORE
 echo ".venv" >> $(FILE_GITIGNORE)
 echo ".vscode" >> $(FILE_GITIGNORE)
@@ -29,6 +29,7 @@ echo "${FILE_LINT_SETTINGS}" >> $(FILE_GITIGNORE)
 endef
 
 define FASTAPI_ROUTES
+
 echo "from fastapi import APIRouter" >> $(APP_NAME)/api/routes.py
 echo "from $(APP_NAME).api.local_routes import api" >> $(APP_NAME)/api/routes.py
 echo "" >> $(APP_NAME)/api/routes.py
@@ -37,6 +38,8 @@ echo "" >> $(APP_NAME)/api/routes.py
 echo "routes.include_router(api.router, prefix='/api')" >> $(APP_NAME)/api/routes.py
 
 endef
+
+  
 
 define FASTAPI_API
 echo "import os" >> $(APP_NAME)/api/local_routes/api.py
@@ -122,6 +125,47 @@ echo "    plugins = sqlmypy" >> $(FILE_LINT_SETTINGS)
 
 endef
 
+define BOTPY
+echo "import os" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "from loguru import logger" >> $(APP_NAME)/bot.py
+echo "from telegram import Update" >> $(APP_NAME)/bot.py
+echo "from telegram.ext import (Application, CommandHandler, ContextTypes," >> $(APP_NAME)/bot.py
+echo "                          MessageHandler, filters)" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "BOT_TOKEN = os.environ.get('BOT_TOKEN', '')" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "@logger.catch" >> $(APP_NAME)/bot.py
+echo "async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:" >> $(APP_NAME)/bot.py
+echo "    '''Send a message when the command /start is issued.'''" >> $(APP_NAME)/bot.py
+echo "    await update.message.reply_text('Hi!')" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "@logger.catch" >> $(APP_NAME)/bot.py
+echo "async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:" >> $(APP_NAME)/bot.py
+echo "    '''Echo the user message.'''" >> $(APP_NAME)/bot.py
+echo "    await update.message.reply_text(update.message.text)" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "def main() -> None:" >> $(APP_NAME)/bot.py
+echo "    '''Start the bot.'''" >> $(APP_NAME)/bot.py
+echo "    application = Application.builder().token(BOT_TOKEN).build()" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "    application.add_handler(CommandHandler('start', start, filters.ChatType.PRIVATE))" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "    application.add_handler(MessageHandler(" >> $(APP_NAME)/bot.py
+echo "        filters.ChatType.PRIVATE & filters.TEXT & ~filters.COMMAND, echo" >> $(APP_NAME)/bot.py
+echo "    ))" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "    application.run_polling()" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "" >> $(APP_NAME)/bot.py
+echo "if __name__ == '__main__':" >> $(APP_NAME)/bot.py
+echo "    main()" >> $(APP_NAME)/bot.py
+
+endef
+
 init:
 	poetry init -n --name $(APP_NAME) --author $(APP_AUTHOR)
 	poetry add --dev flake8
@@ -156,8 +200,6 @@ fastapi:
 	touch $(APP_NAME)/api/local_routes/api.py
 	$(FASTAPI_API)
 
-
-
 lint:
 	poetry run flake8 $(APP_NAME)
 	poetry run mypy $(APP_NAME)
@@ -175,7 +217,11 @@ sqlalchemy:
 	touch $(APP_NAME)/db.py
 	$(DBPY)
 
-
+tg_bot:
+	poetry add git+https://github.com/python-telegram-bot/python-telegram-bot.git@master
+	poetry add apscheduler
+	touch $(APP_NAME)/bot.py
+	$(BOTPY)
 
 db_revision:
 	poetry run alembic revision --autogenerate
