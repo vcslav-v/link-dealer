@@ -13,7 +13,6 @@ def get_info() -> schemas.Info:
         mediums = session.query(models.Medium).order_by(models.Medium.weight.desc()).all()
         campaign_projects = session.query(models.CampaignProject).order_by(models.CampaignProject.weight.desc()).all()
         contents = session.query(models.Content).order_by(models.Content.weight.desc()).all()
-        last_links = session.query(models.Link).order_by(models.Link.campaign_date.desc()).limit(10).all()
 
         return schemas.Info(
             users=[
@@ -66,31 +65,6 @@ def get_info() -> schemas.Info:
                 )
                 for content in contents
             ],
-            last_links=[
-                schemas.Link(
-                    id=link.id,
-                    target_url=link.target_url,
-                    campaign_date=link.campaign_date,
-                    campaign_dop=link.campaign_dop,
-                    full_url=link.full_url,
-                    term_material_id=link.term_material_id,
-                    term_material_name=link.term_material.name,
-                    term_page_id=link.term_page_id,
-                    term_page_name=link.term_page.name,
-                    medium_id=link.medium_id,
-                    medium_name=link.medium.name,
-                    source_id=link.source_id,
-                    source_name=link.source.name,
-                    campaign_project_id=link.campaign_project_id,
-                    campaign_project_name=link.campaign_project.name,
-                    content_id=link.content_id,
-                    content_name=link.content.name,
-                    user_id=link.user_id,
-                    user_name=link.user.name,
-                )
-                for link in last_links
-            ],
-
         )
 
 
@@ -289,4 +263,36 @@ def create_link(data: schemas.LinkCreate) -> schemas.Link:
             content_name=db_link.content.name,
             user_id=db_link.user_id,
             user_name=db_link.user.name,
+        )
+
+
+def get_last_links(num: int = 10) -> schemas.LastLinks:
+    '''Get last links.'''
+    with db.SessionLocal() as session:
+        links = session.query(models.Link).order_by(models.Link.campaign_date.desc()).limit(num).all()
+        return schemas.LastLinks(
+            links=[
+                schemas.Link(
+                    id=link.id,
+                    target_url=link.target_url,
+                    campaign_date=link.campaign_date,
+                    campaign_dop=link.campaign_dop,
+                    full_url=link.full_url,
+                    term_material_id=link.term_material_id,
+                    term_material_name=link.term_material.name,
+                    term_page_id=link.term_page_id,
+                    term_page_name=link.term_page.name,
+                    medium_id=link.medium_id,
+                    medium_name=link.medium.name,
+                    source_id=link.source_id,
+                    source_name=link.source.name,
+                    campaign_project_id=link.campaign_project_id,
+                    campaign_project_name=link.campaign_project.name,
+                    content_id=link.content_id,
+                    content_name=link.content.name,
+                    user_id=link.user_id,
+                    user_name=link.user.name,
+                )
+                for link in links
+            ]
         )

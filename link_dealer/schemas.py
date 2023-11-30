@@ -54,7 +54,6 @@ class Info(BaseModel):
     mediums: list['Medium'] = []
     campaign_projects: list['BaseOption'] = []
     contents: list['BaseOption'] = []
-    last_links: list['Link'] = []
 
 
 class LinkCreate(BaseModel):
@@ -69,3 +68,9 @@ class LinkCreate(BaseModel):
     term_material: int | str
     term_page: int | str
     user: int | str
+
+
+class LastLinks(BaseModel):
+    '''LastLinks.'''
+
+    links: list[Link]

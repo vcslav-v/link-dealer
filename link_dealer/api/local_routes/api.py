@@ -51,3 +51,10 @@ def update_info(data: schemas.Info, _: str = Depends(get_current_username)) -> s
 def create_link(data: schemas.LinkCreate, _: str = Depends(get_current_username)) -> schemas.Link:
     link = db_tools.create_link(data)
     return link
+
+
+@logger.catch
+@router.get('/last_links', response_model=schemas.LastLinks, tags=['api'])
+def last_links(_: str = Depends(get_current_username)) -> schemas.LastLinks:
+    links = db_tools.get_last_links()
+    return links
