@@ -63,8 +63,8 @@ class LinkCreate(BaseModel):
     source: int | str
     medium: int | str
     campaign_project: int | str
-    campaning_dop: str | None = None
-    content: int | str | None = None
+    campaning_dop: str = '0'
+    content: int | str = '0'
     term_material: int | str
     term_page: int | str
     user: int | str

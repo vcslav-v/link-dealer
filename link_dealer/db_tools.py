@@ -150,7 +150,7 @@ def _make_utm_url(
     source: str,
     campaign_project: str,
     content: str,
-    campaning_dop: str | None = None,
+    campaning_dop: str,
 ) -> tuple[str, str]:
     '''Make utm url. Return tuple (target_url, utm_url).'''
     url_parts = urlparse(target_url)
@@ -160,7 +160,7 @@ def _make_utm_url(
         'utm_medium': [medium],
         'utm_campaign': [f'{campaign_project}-{campaign_date.strftime("%Y%m%d")}'],
         'utm_content': [content],
-        'utm_term': [f'{term_material}-{term_page}-{campaning_dop or "0"}'],
+        'utm_term': [f'{term_material}-{term_page}-{campaning_dop}'],
     })
     utm_url_parts = url_parts._replace(query=urlencode(query, doseq=True))
     utm_url = utm_url_parts.geturl()
@@ -207,8 +207,6 @@ def create_link(data: schemas.LinkCreate) -> schemas.Link:
             db_content = session.query(models.Content).filter_by(id=data.content).first()
         elif isinstance(data.content, str):
             db_content = session.query(models.Content).filter_by(name=data.content).first()
-        elif data.content is None:
-            db_content = session.query(models.Content).filter_by(name='0').first()
         if not db_content:
             raise ValueError('Content not found')
         if isinstance(data.user, int):
