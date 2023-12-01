@@ -202,10 +202,13 @@ def create_link(data: schemas.LinkCreate) -> schemas.Link:
             db_campaign_project = session.query(models.CampaignProject).filter_by(name=data.campaign_project).first()
         if not db_campaign_project:
             raise ValueError('CampaignProject not found')
+
         if isinstance(data.content, int):
             db_content = session.query(models.Content).filter_by(id=data.content).first()
         elif isinstance(data.content, str):
             db_content = session.query(models.Content).filter_by(name=data.content).first()
+        elif data.content is None:
+            db_content = session.query(models.Content).filter_by(name='0').first()
         if not db_content:
             raise ValueError('Content not found')
         if isinstance(data.user, int):
