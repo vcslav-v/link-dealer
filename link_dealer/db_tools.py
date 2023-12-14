@@ -270,7 +270,8 @@ def create_link(data: schemas.LinkCreate) -> schemas.Link:
 def get_last_links(num: int = 10) -> schemas.LastLinks:
     '''Get last links.'''
     with db.SessionLocal() as session:
-        links = session.query(models.Link).order_by(models.Link.campaign_date.desc()).limit(num).all()
+        users = session.query(models.User).filter(models.User.is_bot == False).all()
+        links = session.query(models.Link).filter(models.Link.user_id.in_([user.id for user in users])).order_by(models.Link.campaign_date.desc()).limit(num).all()
         return schemas.LastLinks(
             links=[
                 schemas.Link(
