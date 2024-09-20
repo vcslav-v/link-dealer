@@ -64,6 +64,7 @@ class LinkCreate(BaseModel):
     medium: int | str
     campaign_project: int | str
     campaning_dop: str = '0'
+    sendy_id: int | str = '0'
     content: int | str = '0'
     term_material: int | str
     term_page: int | str

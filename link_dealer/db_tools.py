@@ -151,6 +151,7 @@ def _make_utm_url(
     campaign_project: str,
     content: str,
     campaning_dop: str,
+    sendy_id: str
 ) -> tuple[str, str]:
     '''Make utm url. Return tuple (target_url, utm_url).'''
     url_parts = urlparse(target_url)
@@ -158,13 +159,13 @@ def _make_utm_url(
     query.update({
         'utm_source': [source],
         'utm_medium': [medium],
-        'utm_campaign': [f'{campaign_project}-{campaign_date.strftime("%Y%m%d")}'],
+        'utm_campaign': [f'{campaign_project}-{campaign_date.strftime("%Y%m%d")}-{sendy_id}'],
         'utm_content': [content],
         'utm_term': [f'{term_material}-{term_page}-{campaning_dop}'],
     })
     utm_url_parts = url_parts._replace(query=urlencode(query, doseq=True))
     utm_url = utm_url_parts.geturl()
-    
+
     return url_parts.geturl(), utm_url
 
 
@@ -225,7 +226,8 @@ def create_link(data: schemas.LinkCreate) -> schemas.Link:
             db_source.name,
             db_campaign_project.name,
             db_content.name,
-            data.campaning_dop
+            data.campaning_dop,
+            str(data.sendy_id) if data.sendy_id else '0',
         )
         db_link = models.Link(
             target_url=target_url,
